@@ -49,7 +49,9 @@ add_executable(shell
 target_link_libraries(shell parser)
 
 # test 
-find_package(Boost 1.54 REQUIRED COMPONENTS unit_test_framework)
+# only cmake 3.24+ support boost 1.80+ so we got a warn
+set(Boost_NO_WARN_NEW_VERSIONS ON)
+find_package(Boost 1.54 COMPONENTS unit_test_framework REQUIRED)
 
 set(TEST_SOURCE_DIR ${PROJECT_SOURCE_DIR}/test)
 set(TEST_MAIN_SRC ${TEST_SOURCE_DIR}/main.cpp)

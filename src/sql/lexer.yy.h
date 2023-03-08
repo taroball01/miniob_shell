@@ -2,9 +2,9 @@
 #define yyHEADER_H 1
 #define yyIN_HEADER 1
 
-#line 6 "/mnt/e/desktop/毕设/project/shell_cmake/src/sql/lexer.yy.h"
+#line 6 "/workspaces/miniob_shell/src/sql/lexer.yy.h"
 
-#line 8 "/mnt/e/desktop/毕设/project/shell_cmake/src/sql/lexer.yy.h"
+#line 8 "/workspaces/miniob_shell/src/sql/lexer.yy.h"
 
 #define  YY_INT_ALIGNED short int
 
@@ -502,9 +502,9 @@ extern int yylex \
 #undef yyTABLES_NAME
 #endif
 
-#line 78 "/mnt/e/desktop/毕设/project/shell_cmake/src/sql/lexer.l"
+#line 78 "/workspaces/miniob_shell/src/sql/lexer.l"
 
 
-#line 509 "/mnt/e/desktop/毕设/project/shell_cmake/src/sql/lexer.yy.h"
+#line 509 "/workspaces/miniob_shell/src/sql/lexer.yy.h"
 #undef yyIN_HEADER
 #endif /* yyHEADER_H */
