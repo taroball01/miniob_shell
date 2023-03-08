@@ -1,8 +1,6 @@
 {
   "image": "mcr.microsoft.com/devcontainers/cpp:ubuntu-20.04",
   "features": {
-    "ghcr.io/akhildevelops/devcontainer-features/apt:0": {
-      "PACKAGES": "flex"
-    }
+    
   }
 }
