@@ -2,9 +2,21 @@
 #include <vector>
 #include "sql/parser.h"
 
-extern int sql_parse(const char *, ParserContext&);
 extern char lowercase(char);
-extern const char* type2string(SqlType);
+#define CASE(LABEL) case LABEL: return #LABEL
+const char* type2string(SqlType tp) {
+  switch (tp) {
+    CASE(SqlType::Exit);
+    CASE(SqlType::Select);
+    default: return "unknow-type";
+  }
+} 
+
+char lowercase(char ch) {
+  static const char distance = 'a' - 'A';
+  return (ch >= 'A' && ch <= 'Z' ? ch + distance : ch);
+}
+
 int main() {
   while (true) {
     std::cout<<">\t"<<std::flush;
@@ -21,13 +33,11 @@ int main() {
     ParserContext context;
     // pass to parser, store message in context
     int result = sql_parse(sql.data(), context);
-    if (!result && context.query) {
-      SqlType type = context.query->get_sql_type();
+    if (!result && context.query_) {
+      SqlType type = context.query_->get_sql_type();
       std::cout<<type2string(type);
-      delete context.query;
-      context.query = nullptr;
 
-      if (type == SqlType::EXIT) {
+      if (type == SqlType::Exit) {
         std::cout<<"\nBye\n";
         return 0;
       }

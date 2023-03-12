@@ -1,1 +1,7 @@
 build/
+.cache/
+
+*/sql/lexer.yy.*
+*/sql/yacc.tab.*
+
+.vscode/
