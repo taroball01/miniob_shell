@@ -3,16 +3,17 @@
 #include <memory>
 #ifndef YY_TYPEDEF_YY_SCANNER_T
 #define YY_TYPEDEF_YY_SCANNER_T
-typedef void* yyscan_t;
+typedef void *yyscan_t;
 #endif
 
 #include <string>
 #include <vector>
+#include "relation/attribute.h"
+#include "relation/value/value.h"
+#include "sql/predicate/predicate.h"
 #include "sql/query/query.h"
-#include "sql/query/attribute.h"
-#include "sql/query/value.h"
-#include "sql/query/predicate.h"
 
+namespace query_process_engine {
 struct ParserContext {
   std::unique_ptr<Query> query_;
   std::vector<std::string> str_stack_;
@@ -30,8 +31,8 @@ struct ParserContext {
   }
 
   template <typename T>
-  auto get_query() -> T* {
-    return dynamic_cast<T*>(query_.get());
+  auto get_query() -> T * {
+    return dynamic_cast<T *>(query_.get());
   }
 
   auto pop_str() -> std::string {
@@ -51,7 +52,7 @@ struct ParserContext {
     value_stack_.pop_back();
     return pval;
   }
-  
+
   auto pop_predicate() -> std::unique_ptr<Predicate> {
     std::unique_ptr<Predicate> pred = std::move(pred_stack_.back());
     pred_stack_.pop_back();
@@ -68,13 +69,13 @@ struct ParserContext {
 // switch buffer to str
 void scan_string(const char *str, yyscan_t scanner);
 /* interface to parse sql info into context
-*  @param sql: input sql statement
-*  @param context: parse result stores in context.query_, context also contains some supplymentary stacks
-*  @return: 0 if succeed
-*/
-int sql_parse(const std::string& sql, ParserContext& context);
-
-void yyerror(yyscan_t scanner, const char *str);
+ *  @param sql: input sql statement
+ *  @param context: parse result stores in context.query_, context also contains some supplymentary stacks
+ *  @return: 0 if succeed
+ */
+int sql_parse(const std::string &sql, ParserContext &context);
 
 ParserContext *get_context(yyscan_t scanner);
+}  // namespace query_process_engine
 
+void yyerror(yyscan_t scanner, const char *str);

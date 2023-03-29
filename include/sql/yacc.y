@@ -3,11 +3,15 @@
 #include "sql/parser.h"
 
 /* lexer.yy.h depends on yacc.tab.h, because of `YYSTYPE` */
+
+// clang-format off
 #include "sql/yacc.tab.h"
 #include "sql/lexer.yy.h"
+// clang-format on
 
 #include "sql/query/select.h"
-#define CONTEXT get_context(scanner)
+using namespace query_process_engine;
+#define CONTEXT query_process_engine::get_context(scanner)
 %}
 /* */
 %define api.pure full
@@ -43,7 +47,7 @@
 %union {  
   int number;
   float floats;
-  CompareOp compare_op;
+  query_process_engine::CompareOp compare_op;
 }
 
 %token <number> NUMBER
@@ -74,11 +78,6 @@ sel_list_item:
   STAR { 
     auto* query = CONTEXT->get_query<SelectQuery>();
     query->add_attribute(Attribute{"*"});
-  }
-  |
-  ID DOT STAR { 
-    auto* query = CONTEXT->get_query<SelectQuery>();
-    query->add_attribute(Attribute{"*", CONTEXT->pop_str()});
   }
   | 
   attribute {

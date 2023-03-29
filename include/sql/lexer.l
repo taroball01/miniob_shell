@@ -1,13 +1,14 @@
 %{
 /* definition part of c, this part will copy to lexer.yy.c */
 /* we need token from yacc.tab.h*/
-#include "sql/query/predicate.h"
+#include "sql/predicate/predicate.h"
 #include "sql/yacc.tab.h"
 #include "sql/parser.h"
 
 extern int atoi();
 extern double atof();
-#define CONTEXT get_context(yyscanner)
+using namespace query_process_engine;
+#define CONTEXT query_process_engine::get_context(yyscanner)
 %}
 
 /* ---- Options Part ---- */
@@ -23,11 +24,11 @@ DIGIT                 [0-9]
 
 ID                    [A-Za-z_]+[A-Za-z0-9_]*
 DOT                   \.
-SINGLE_QUOTE          \'
-
+/* https://stackoverflow.com/questions/2039795/regular-expression-for-a-string-literal-in-flex-lex */
 %%
-{WHITE_SPACE}                     ; /* ignore whitespace*/
 \n                                ; 
+\'([^\\\']|\\.)*\'                CONTEXT->str_stack_.emplace_back(yytext); return STRING;
+{WHITE_SPACE}                     ; /* ignore whitespace*/
 exit                              return EXIT;
 select                            return SELECT;
 from                              return FROM;
@@ -49,7 +50,6 @@ or                                return OR;
 ">"                               return GT;
 [\-]?{DIGIT}+                     yylval->number = atoi(yytext); return NUMBER;
 [\-]?{DIGIT}+{DOT}{DIGIT}+        yylval->floats = (float)(atof(yytext)); return FLOAT;
-{SINGLE_QUOTE}.*{SINGLE_QUOTE}    CONTEXT->str_stack_.emplace_back(yytext); return STRING;
 {ID}                              CONTEXT->str_stack_.emplace_back(yytext); return ID;
 .                                 printf("Unknown character [%c]\n",yytext[0]); return yytext[0];
 %%
