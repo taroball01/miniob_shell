@@ -38,7 +38,7 @@ auto MockStorageManager::get_tuple(const TupleId &id) -> Tuple {
   }
   return data_.at(rel).at(off);
 }
-
+auto MockStorageManager::get_relations() -> std::vector<std::string> { return db_schema_.get_relations(); }
 static std::vector<Tuple> student_data = {
     make_tuple(String("'zeli'"), Date("2001-06-10"), Integer(3082)),
     make_tuple(String("'taroball'"), Date("2001-12-06"), Integer(3084)),

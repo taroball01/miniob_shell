@@ -34,6 +34,9 @@ using namespace query_process_engine;
         STAR 
         DOT
         WHERE
+        SHOW
+        TABLES
+        DESC
         LBRACE
         RBRACE
         NOT 
@@ -67,10 +70,22 @@ command: /* starts here */
   exit
   |
   select  
+  |
+  show_tables
+  |
+  desc_table
   ;
   
 exit:
   EXIT SEMICOLON { CONTEXT->query_ = std::make_unique<ExitCmd>(); };
+
+show_tables:
+  SHOW TABLES SEMICOLON { CONTEXT->query_ = std::make_unique<ShowTables>(); }
+  ;
+
+desc_table:
+  DESC ID SEMICOLON { CONTEXT->query_ = std::make_unique<DescTable>(CONTEXT->pop_str()); }
+  ;
 
 select:
   SELECT { CONTEXT->query_ = std::make_unique<SelectQuery>(); } sel_list FROM from_list where_clause SEMICOLON {}

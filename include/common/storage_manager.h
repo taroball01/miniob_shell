@@ -14,5 +14,6 @@ class ITranscationalStorageManager {
   virtual auto get_start_id(const std::string &) -> std::shared_ptr<TupleId> = 0;
   virtual auto get_next_id(const TupleId &id) -> std::shared_ptr<TupleId> = 0;
   virtual auto get_tuple(const TupleId &id) -> Tuple = 0;
+  virtual auto get_relations() -> std::vector<std::string> = 0;
 };
 }  // namespace query_process_engine

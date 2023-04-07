@@ -22,10 +22,10 @@ auto Value::evaluate(CompareOp op, const Value &l, const Value &r) -> bool {
 
 auto valuetype_to_string(ValueType vt) -> std::string {
   switch (vt) {
-    case ValueType::VT_STRING: return "String";
-    case ValueType::VT_DATE: return "Date";
-    case ValueType::VT_FLOAT: return "Float";
-    case ValueType::VT_INT: return "Integer";
+    case ValueType::VT_STRING: return "string";
+    case ValueType::VT_DATE: return "date";
+    case ValueType::VT_FLOAT: return "float";
+    case ValueType::VT_INT: return "int";
     default: return "Invalid";
   }
 }
