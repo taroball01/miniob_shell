@@ -1,4 +1,6 @@
+#include <boost/test/tools/old/interface.hpp>
 #include <boost/test/unit_test.hpp>
+#include "common/parser_error/parser_error_info.h"
 #include "sql/parser.h"
 #include "sql/predicate/predicate.h"
 #include "sql/query/select.h"
@@ -29,8 +31,7 @@ BOOST_AUTO_TEST_CASE(test_simple_select) {
 
   // not supported
   sql = "select name - 1 from student;";
-  result = sql_parse(sql, pc);
-  BOOST_CHECK(result != 0);
+  BOOST_CHECK_THROW(sql_parse(sql, pc), ParserErrorInfo);
   pc.clear();
 }
 
@@ -146,14 +147,8 @@ BOOST_AUTO_TEST_CASE(test_select_multi_attribute_and_relation) {
     std::vector<std::string> s_rel{"t1", "t2", "t3", "t4"};
     BOOST_CHECK(std::equal(relations.begin(), relations.end(), s_rel.begin()));
   }
-  {
-    int result = sql_parse(sw_rel("", "t1, t2, t3, t4"), pc);
-    BOOST_CHECK(result != 0);
-  }
-  {
-    int result = sql_parse(sw_rel("a1, a2, a3", ""), pc);
-    BOOST_CHECK(result != 0);
-  }
+  { BOOST_CHECK_THROW(sql_parse(sw_rel("", "t1, t2, t3, t4"), pc), ParserErrorInfo); }
+  { BOOST_CHECK_THROW(sql_parse(sw_rel("a1, a2, a3", ""), pc), ParserErrorInfo); }
   {
     int result = sql_parse(sw_rel("*, a.b, c.s2", "t2"), pc);
     BOOST_CHECK(result == 0);

@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(test_resolve_relations) {
   BOOST_CHECK_EQUAL(output.get_relations().size(), 1);
   // not in
   tables.emplace_back("db_course");
-  BOOST_CHECK_THROW(preprocessor.resolve_relations(tables, output), std::runtime_error);
+  BOOST_CHECK_THROW(preprocessor.resolve_relations(tables, output), std::exception);
 
   tables.pop_back();
   tables = {"student", "teach", "enroll", "course", "grade", "teacher"};
@@ -55,29 +55,29 @@ BOOST_AUTO_TEST_CASE(test_resolve_attributes) {
   attrs = {
       Attribute{"stuId", ""},
   };
-  BOOST_CHECK_THROW(preprocessor.resolve_attributes(attrs, sch), std::runtime_error);
+  BOOST_CHECK_THROW(preprocessor.resolve_attributes(attrs, sch), ParserErrorInfo);
   attrs[0].set_relation("student");
   result = preprocessor.resolve_attributes(attrs, sch);
   BOOST_CHECK_EQUAL(result, true);
 
   attrs.emplace_back(Attribute{"courseId"});
-  BOOST_CHECK_THROW(preprocessor.resolve_attributes(attrs, sch), std::runtime_error);
+  BOOST_CHECK_THROW(preprocessor.resolve_attributes(attrs, sch), ParserErrorInfo);
 
   attrs[1].set_relation("teach");
   result = preprocessor.resolve_attributes(attrs, sch);
   BOOST_CHECK_EQUAL(result, true);
 
   attrs.emplace_back(Attribute{"teacherId"});
-  BOOST_CHECK_THROW(preprocessor.resolve_attributes(attrs, sch), std::runtime_error);
+  BOOST_CHECK_THROW(preprocessor.resolve_attributes(attrs, sch), ParserErrorInfo);
 
   attrs[2].set_relation("teacher");
   BOOST_CHECK_EQUAL(result, true);
   // attributes not occurred
   attrs = {Attribute{"birthday"}, Attribute{"strange_"}};
-  BOOST_CHECK_THROW(preprocessor.resolve_attributes(attrs, sch), std::runtime_error);
+  BOOST_CHECK_THROW(preprocessor.resolve_attributes(attrs, sch), ParserErrorInfo);
 
   attrs = {Attribute{"birthday", "teacher"}};
-  BOOST_CHECK_THROW(preprocessor.resolve_attributes(attrs, sch), std::runtime_error);
+  BOOST_CHECK_THROW(preprocessor.resolve_attributes(attrs, sch), ParserErrorInfo);
 
   // *
   attrs = {
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(test_resolve_predicate_leaves) {
       bool result = preprocessor.resolve_predicate_leaves(*ptr, sch);
       BOOST_CHECK_EQUAL(result, is_right);
     } else {
-      BOOST_CHECK_THROW(preprocessor.resolve_predicate_leaves(*ptr, sch), std::runtime_error);
+      BOOST_CHECK_THROW(preprocessor.resolve_predicate_leaves(*ptr, sch), ParserErrorInfo);
     }
   }
 
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE(test_resolve_predicate_leaves) {
       bool result = preprocessor.resolve_predicate_leaves(*ptr, sch);
       BOOST_CHECK_EQUAL(result, is_right);
     } else {
-      BOOST_CHECK_THROW(preprocessor.resolve_predicate_leaves(*ptr, sch), std::runtime_error);
+      BOOST_CHECK_THROW(preprocessor.resolve_predicate_leaves(*ptr, sch), ParserErrorInfo);
     }
   }
 
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE(test_resolve_predicate_leaves) {
       bool result = preprocessor.resolve_predicate_leaves(*ptr, sch);
       BOOST_CHECK_EQUAL(result, is_right);
     } else {
-      BOOST_CHECK_THROW(preprocessor.resolve_predicate_leaves(*ptr, sch), std::runtime_error);
+      BOOST_CHECK_THROW(preprocessor.resolve_predicate_leaves(*ptr, sch), ParserErrorInfo);
     }
   }
   // check attr - attr
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE(test_resolve_predicate_leaves) {
       bool result = preprocessor.resolve_predicate_leaves(*ptr, sch);
       BOOST_CHECK_EQUAL(result, is_right);
     } else {
-      BOOST_CHECK_THROW(preprocessor.resolve_predicate_leaves(*ptr, sch), std::runtime_error);
+      BOOST_CHECK_THROW(preprocessor.resolve_predicate_leaves(*ptr, sch), ParserErrorInfo);
     }
   }
 }

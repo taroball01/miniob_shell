@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+#include "common/parser_error/parser_error_info.h"
 #include "executor/executor.h"
 #include "mock_storage_manager.h"
 #include "mock_result_printer.h"
@@ -22,8 +23,11 @@ const char *type2string(SqlType tp) {
       return "unknow-type";
   }
 }
+constexpr char DEL = 127;
+constexpr char BS = '\b';
 
 int main() {
+  MockResultPrinter printer;
   while (true) {
     std::cout << ">\t" << std::flush;
     // read sql
@@ -32,26 +36,31 @@ int main() {
     bool semi = false;
     do {
       nxt = std::cin.get();
+      if (nxt == DEL || nxt == BS) {
+        if (!sql.empty()) sql.pop_back();
+        continue;
+      }
       semi |= (nxt == ';');
       sql.emplace_back(nxt);
     } while (!(semi && nxt == '\n'));
     sql.back() = '\0';
+    printer.set_sql(sql.data());
     ParserContext context;
-    // pass to parser, store message in context
-    int result = sql_parse(sql.data(), context);
-    if (result != 0 || nullptr == context.query_) {
-      continue;
-    }
 
-    SqlType type = context.query_->get_sql_type();
-    std::cout << type2string(type)<<"\n";
-
-    if (type == SqlType::Exit) {
-      std::cout << "Bye\n";
-      return 0;
-    }
-    MockResultPrinter printer;
     try {
+        // pass to parser, store message in context
+      int rc = sql_parse(sql.data(), context);
+      if (rc != 0 || nullptr == context.query_) {
+        throw std::logic_error("Unknown parser failed reason.");
+        continue;
+      }
+
+      SqlType type = context.query_->get_sql_type();
+
+      if (type == SqlType::Exit) {
+        std::cout << "Bye\n";
+        return 0;
+      }
       Preprocessor preprocessor(mock_tsm, printer);
       auto stmt = preprocessor.preprocess(std::move(context.query_));
 
@@ -65,8 +74,8 @@ int main() {
       auto physical_plan = executor.build_physical_operator(*plan);
       auto result = executor.execute(*physical_plan);
       printer.output_result(result);
-    } catch(const std::runtime_error& e) {
-      printer.output_error(e.what());
+    } catch(ParserErrorInfo& err) {
+      printer.output_parser_error(err);
     } catch(const std::logic_error& e) {
       static std::string logic_prefix("Internal Engine Error: ");
       printer.output_error(logic_prefix+ e.what());
