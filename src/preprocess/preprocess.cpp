@@ -3,6 +3,10 @@
 #include <memory>
 #include <stdexcept>
 #include <vector>
+#include "common/parser_error/ambiguous_attribute.h"
+#include "common/parser_error/mismatched_type.h"
+#include "common/parser_error/unknown_attribute.h"
+#include "common/parser_error/unknown_relation.h"
 #include "preprocess/preprocessor.h"
 #include "relation/value/date.h"
 #include "relation/value/value.h"
@@ -48,7 +52,7 @@ auto Preprocessor::resolve_relations(const std::vector<std::string> &relations, 
   for (auto &rel : relations) {
     auto sch_arr = ts_manager_.get_relation(rel);
     if (sch_arr.empty()) {
-      throw std::runtime_error("unknown relation:" + rel);
+      throw UnknownRelation(rel);
       return false;
     }
     for (auto &item : sch_arr) {
@@ -65,8 +69,11 @@ auto Preprocessor::resolve_attribute_item(Attribute &attr, const Schema &schema)
     // find relation
     int rel_num = schema.count_relation(attr_name);
     if (1 != rel_num) {
-      throw std::runtime_error(rel_num > 1 ? ("ambiguous attribute: " + attr_name)
-                                           : ("unknown attribute: " + attr_name));
+      if (rel_num > 1) {
+        throw AmbiguousAttribute(attr_name);
+      } else {
+        throw UnknownAttribute(attr);
+      }
       return false;
     } else {
       attr.set_relation(schema.get_relation(attr_name));
@@ -74,7 +81,7 @@ auto Preprocessor::resolve_attribute_item(Attribute &attr, const Schema &schema)
   } else {
     // check whether exists
     if (!schema.is_attribute_exists(rel_name, attr_name)) {
-      throw std::runtime_error("unknown attribute: " + rel_name + "." + attr_name);
+      throw UnknownAttribute(attr);
       return false;
     }
   }
@@ -168,7 +175,7 @@ auto Preprocessor::resolve_predicate_leaves(Predicate &conditions, const Schema 
       }
 
       if (!is_valid_compare(lchild, rchild, l_vt, r_vt)) {
-        throw std::runtime_error("mismatched types in: " + leaf.to_string());
+        throw MismatchedType(leaf.to_string(), l_vt, r_vt);
         return false;
       }
       return true;

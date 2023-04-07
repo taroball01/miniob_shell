@@ -1,4 +1,6 @@
 #include <numeric>
+#include <string>
+#include "common/parser_error/parser_error_info.h"
 #include "common/result_printer.h"
 
 using namespace query_process_engine;
@@ -10,6 +12,7 @@ private:
   char col_span_ = '|';
   char space_ = ' ';
   char min_distance_ = 1;
+
 private:
   auto calc_column_width(const std::vector<Tuple> &result) -> void {
     column_width_.resize(attributes_.size());
@@ -23,6 +26,9 @@ private:
         column_width_[i] = std::max<int>(column_width_[i], tp_arr.at(i)->to_string().size());
       }
     }
+  }
+  auto output_multi_char(char c, int size) const -> void {
+    std::cout<<std::string(size, c);
   }
   auto output_line_span(int size) const -> void {
     std::cout<<std::string(size, row_span_)<<"\n";
@@ -54,6 +60,11 @@ private:
     }
     std::cout<<"\n";
   }
+  auto output_parser_error_prefix() const -> void {
+    output_multi_char('-', 6);
+    output_multi_char(col_span_, 1);
+    output_spaces(1);
+  }
 public:
   MockResultPrinter() = default;
   auto output_error(const std::string &err) -> void override { std::cerr << err << std::endl; }
@@ -68,4 +79,16 @@ public:
     std::cout<<std::endl;   
   }
   auto output_warn(const std::string &warn) -> void override { std::cerr << warn << std::endl; }
+  auto output_parser_error(ParserErrorInfo& error) -> void override {
+    std::cout<<"\n";
+    output_parser_error_prefix();
+    std::cout<<error.get_raw_string(sql_)<<"\n";
+    
+    output_parser_error_prefix();
+    auto col = error.get_position().second;
+    output_multi_char('_', col - 1);
+    std::cout<<"^\n";
+
+    std::cout<<error.get_details()<<"\n";
+  }
 };

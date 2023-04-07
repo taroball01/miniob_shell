@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "common/parser_error/parser_error_info.h"
 #ifndef YY_TYPEDEF_YY_SCANNER_T
 #define YY_TYPEDEF_YY_SCANNER_T
 typedef void *yyscan_t;
@@ -15,12 +16,16 @@ typedef void *yyscan_t;
 
 namespace query_process_engine {
 struct ParserContext {
+ public:
+  /* For parser infomation */
   std::unique_ptr<Query> query_;
   std::vector<std::string> str_stack_;
   std::vector<Attribute> attr_stack_;
   std::vector<std::unique_ptr<Value>> value_stack_;
   std::vector<std::unique_ptr<Operand>> operand_stack_;
   std::vector<std::unique_ptr<Predicate>> pred_stack_;
+
+ public:
   auto clear() -> void {
     std::unique_ptr<Query>().swap(query_);
     str_stack_.clear();
@@ -77,5 +82,3 @@ int sql_parse(const std::string &sql, ParserContext &context);
 
 ParserContext *get_context(yyscan_t scanner);
 }  // namespace query_process_engine
-
-void yyerror(yyscan_t scanner, const char *str);

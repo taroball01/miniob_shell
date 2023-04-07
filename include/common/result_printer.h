@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include "common/parser_error/parser_error_info.h"
 #include "relation/attribute.h"
 #include "relation/tuple.h"
 
@@ -10,6 +11,7 @@ namespace query_process_engine {
 class ResultPrinter {
  protected:
   std::vector<Attribute> attributes_;
+  std::string sql_;
 
  public:
   ResultPrinter() = default;
@@ -19,6 +21,8 @@ class ResultPrinter {
   virtual auto output_result(const std::vector<Tuple> &result) -> void { throw; }
   virtual auto output_warn(const std::string &warn) -> void { std::cerr << warn << std::endl; }
   auto set_attributes(const std::vector<Attribute> &attributes) -> void { attributes_ = attributes; }
+  auto set_sql(const std::string &sql) -> void { sql_ = sql; }
+  virtual auto output_parser_error(ParserErrorInfo &error) -> void = 0;
 };
 
 }  // namespace query_process_engine

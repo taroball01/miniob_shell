@@ -17,6 +17,8 @@ enum class ValueType {
   VT_INVALID,
 };
 
+auto valuetype_to_string(ValueType) -> std::string;
+
 class Value {
  public:
   static auto evaluate(CompareOp op, const Value &l, const Value &r) -> bool;
@@ -80,7 +82,7 @@ class String : public Value {
     auto &r_st = dynamic_cast<const String &>(rhs);
     return get_data() < r_st.get_data();
   }
-  auto to_string() const -> std::string override { return str_; }
+  auto to_string() const -> std::string override { return "'" + str_ + "'"; }
 };
 
 class Float : public Value {

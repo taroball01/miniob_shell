@@ -12,11 +12,19 @@
 #include "sql/query/select.h"
 using namespace query_process_engine;
 #define CONTEXT query_process_engine::get_context(scanner)
+
 %}
-/* */
+
+%code {
+  int yylex(YYSTYPE* yylvalp, YYLTYPE* yyllocp, yyscan_t scanner);
+  void yyerror(YYLTYPE* yyllocp, yyscan_t unused, const char* msg);
+}
+
 %define api.pure full
 %lex-param { yyscan_t scanner }
 %parse-param { void *scanner }
+%define parse.error verbose
+%locations
 
 %token  EXIT
         SELECT
@@ -186,4 +194,5 @@ value:
   }
   ;
 %%
+
 
