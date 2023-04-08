@@ -10,6 +10,8 @@
 #include "planner/planner.h"
 #include "preprocess/preprocessor.h"
 #include "sql/parser.h"
+#include "sql/query/create_table.h"
+#include "sql/query/query.h"
 
 using namespace query_process_engine;
 #define CASE(LABEL) \
@@ -56,10 +58,34 @@ int main() {
       }
 
       SqlType type = context.query_->get_sql_type();
-
-      if (type == SqlType::Exit) {
-        std::cout << "Bye\n";
-        return 0;
+      switch (type) {
+        case SqlType::Exit: {
+          std::cout<<"Bye\n";
+          return 0;
+        }
+        case SqlType::ShowTables: {
+          printer.output_relations(mock_tsm.get_relations());
+          continue;
+        }
+        case SqlType::DescTable: {
+          auto& desc = dynamic_cast<DescTable&>(*context.query_);
+          auto& rel = desc.get_relation_name();
+          auto sch = mock_tsm.get_relation(rel);
+          printer.output_schema(rel, sch);
+          continue;
+        }
+        case SqlType::CreateTable: {
+          auto& ct = dynamic_cast<CreateTable&>(*context.query_);
+          if (mock_tsm.create_table(ct.get_schema_array())) {
+            printer.output_message("Table " + ct.get_relation_name() + " created.");
+          } else {
+            printer.output_error("Table " + ct.get_relation_name() + " existed, creating failed.");
+          }
+          continue;
+        }
+        default: {
+          break; // fall 
+        }
       }
       Preprocessor preprocessor(mock_tsm, printer);
       auto stmt = preprocessor.preprocess(std::move(context.query_));

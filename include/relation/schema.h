@@ -44,5 +44,6 @@ class Schema {
   auto get_attribute_id(const std::string &relation, const std::string &attribute) const -> int;
   // clear current
   auto clear() -> void;
+  auto is_relation_exist(const std::string &rel) const -> bool { return rel_map_.find(rel) != rel_map_.end(); }
 };
 }  // namespace query_process_engine

@@ -1,5 +1,6 @@
 #pragma once
 #include <unordered_map>
+#include <vector>
 #include "common/storage_manager.h"
 
 namespace query_process_engine {
@@ -23,6 +24,8 @@ class MockStorageManager : public ITranscationalStorageManager {
   auto get_start_id(const std::string &rel) -> std::shared_ptr<TupleId> override;
   auto get_next_id(const TupleId &id) -> std::shared_ptr<TupleId> override;
   auto get_tuple(const TupleId &id) -> Tuple override;
+  auto get_relations() -> std::vector<std::string> override;
+  auto create_table(const std::vector<SchemaItem> &sch) -> bool override;
 };
 
 extern MockStorageManager mock_tsm;

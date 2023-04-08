@@ -44,14 +44,27 @@ DOT                   \.
 \n                                ; 
 \'([^\\\']|\\.)*\'                CONTEXT->str_stack_.emplace_back(yytext); return STRING;
 {WHITE_SPACE}                     ; /* ignore whitespace*/
-exit                              return EXIT;
-select                            return SELECT;
-from                              return FROM;
+[Ee][Xx][Ii][Tt]                  return EXIT;
+[Ss][Ee][Ll][Ee][Cc][Tt]          return SELECT;
+[Ff][Rr][Oo][Mm]                  return FROM;
 ";"                               return SEMICOLON;
 ","                               return COMMA;
 "*"                               return STAR;
 "."                               return DOT;
-where                             return WHERE;
+[Ww][Hh][Ee][Rr][Ee]              return WHERE;
+
+[Ss][Hh][Oo][Ww]                  return SHOW;
+[Tt][Aa][Bb][Ll][Ee][Ss]          return TABLES;
+[Dd][Ee][Ss][Cc]                  return DESC;
+
+[Cc][Rr][Ee][Aa][Tt][Ee]          return CREATE;
+[Tt][Aa][Bb][Ll][Ee]              return TABLE;
+
+int                               return INT_T;
+string                            return STRING_T;
+date                              return DATE_T;
+float                             return FLOAT_T;
+
 "("                               return LBRACE;
 ")"                               return RBRACE;
 not                               return NOT;

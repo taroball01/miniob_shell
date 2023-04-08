@@ -1,4 +1,5 @@
 #include "mock_storage_manager.h"
+#include <algorithm>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -38,6 +39,27 @@ auto MockStorageManager::get_tuple(const TupleId &id) -> Tuple {
     return {};
   }
   return data_.at(rel).at(off);
+}
+
+auto MockStorageManager::get_relations() -> std::vector<std::string> {
+  std::vector<std::string> relations;
+  for (const auto& [key, _] : db_schema_) {
+    relations.emplace_back(key);
+  }
+  std::sort(relations.begin(), relations.end());
+  return relations;
+}
+
+auto MockStorageManager::create_table(const std::vector<SchemaItem>& sch) -> bool {
+  if (sch.empty()) {
+    return false;
+  }
+  auto& tb = sch[0].relation_;
+  if (db_schema_.find(tb) != db_schema_.end()) {
+    return false;
+  }
+  db_schema_.emplace(tb, sch);
+  return true;
 }
 
 static std::vector<Tuple> student_data = {
