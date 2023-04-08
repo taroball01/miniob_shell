@@ -39,6 +39,22 @@ auto MockStorageManager::get_tuple(const TupleId &id) -> Tuple {
   return data_.at(rel).at(off);
 }
 auto MockStorageManager::get_relations() -> std::vector<std::string> { return db_schema_.get_relations(); }
+
+auto MockStorageManager::create_table(const std::vector<SchemaItem> &sch) -> bool {
+  if (sch.empty()) {
+    return false;
+  }
+  auto &tb = sch[0].relation_;
+
+  if (db_schema_.is_relation_exist(tb)) {
+    return false;
+  }
+  for (auto &it : sch) {
+    db_schema_.append_schema(it);
+  }
+  return true;
+}
+
 static std::vector<Tuple> student_data = {
     make_tuple(String("'zeli'"), Date("2001-06-10"), Integer(3082)),
     make_tuple(String("'taroball'"), Date("2001-12-06"), Integer(3084)),

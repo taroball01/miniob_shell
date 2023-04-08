@@ -50,6 +50,18 @@ auto MockStorageManager::get_relations() -> std::vector<std::string> {
   return relations;
 }
 
+auto MockStorageManager::create_table(const std::vector<SchemaItem>& sch) -> bool {
+  if (sch.empty()) {
+    return false;
+  }
+  auto& tb = sch[0].relation_;
+  if (db_schema_.find(tb) != db_schema_.end()) {
+    return false;
+  }
+  db_schema_.emplace(tb, sch);
+  return true;
+}
+
 static std::vector<Tuple> student_data = {
     make_tuple(String("'zeli'"), Date("2001-06-10"), Integer(3082)),
     make_tuple(String("'taroball'"), Date("2001-12-06"), Integer(3084)),

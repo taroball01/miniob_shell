@@ -10,6 +10,7 @@
 #include "planner/planner.h"
 #include "preprocess/preprocessor.h"
 #include "sql/parser.h"
+#include "sql/query/create_table.h"
 #include "sql/query/query.h"
 
 using namespace query_process_engine;
@@ -71,6 +72,15 @@ int main() {
           auto& rel = desc.get_relation_name();
           auto sch = mock_tsm.get_relation(rel);
           printer.output_schema(rel, sch);
+          continue;
+        }
+        case SqlType::CreateTable: {
+          auto& ct = dynamic_cast<CreateTable&>(*context.query_);
+          if (mock_tsm.create_table(ct.get_schema_array())) {
+            printer.output_message("Table " + ct.get_relation_name() + " created.");
+          } else {
+            printer.output_error("Table " + ct.get_relation_name() + " existed, creating failed.");
+          }
           continue;
         }
         default: {

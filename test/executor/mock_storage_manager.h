@@ -25,6 +25,7 @@ class MockStorageManager : public ITranscationalStorageManager {
   auto get_next_id(const TupleId &id) -> std::shared_ptr<TupleId> override;
   auto get_tuple(const TupleId &id) -> Tuple override;
   auto get_relations() -> std::vector<std::string> override;
+  auto create_table(const std::vector<SchemaItem> &sch) -> bool override;
 };
 
 extern MockStorageManager mock_tsm;

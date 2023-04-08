@@ -27,6 +27,7 @@ class ResultPrinter {
   virtual auto output_warn(const std::string &warn) -> void { std::cerr << warn << std::endl; }
   auto set_attributes(const std::vector<Attribute> &attributes) -> void { attributes_ = attributes; }
   auto set_sql(const std::string &sql) -> void { sql_ = sql; }
+  virtual auto output_message(const std::string &msg) -> void = 0;
   virtual auto output_parser_error(ParserErrorInfo &error) -> void = 0;
 };
 

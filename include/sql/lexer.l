@@ -57,6 +57,14 @@ DOT                   \.
 [Tt][Aa][Bb][Ll][Ee][Ss]          return TABLES;
 [Dd][Ee][Ss][Cc]                  return DESC;
 
+[Cc][Rr][Ee][Aa][Tt][Ee]          return CREATE;
+[Tt][Aa][Bb][Ll][Ee]              return TABLE;
+
+int                               return INT_T;
+string                            return STRING_T;
+date                              return DATE_T;
+float                             return FLOAT_T;
+
 "("                               return LBRACE;
 ")"                               return RBRACE;
 not                               return NOT;

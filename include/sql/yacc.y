@@ -10,6 +10,8 @@
 // clang-format on
 
 #include "sql/query/select.h"
+#include "sql/query/create_table.h"
+
 using namespace query_process_engine;
 #define CONTEXT query_process_engine::get_context(scanner)
 
@@ -37,6 +39,13 @@ using namespace query_process_engine;
         SHOW
         TABLES
         DESC
+        CREATE
+        TABLE
+        INT_T
+        STRING_T
+        DATE_T
+        FLOAT_T
+
         LBRACE
         RBRACE
         NOT 
@@ -59,11 +68,13 @@ using namespace query_process_engine;
   int number;
   float floats;
   query_process_engine::CompareOp compare_op;
+  query_process_engine::ValueType value_type;
 }
 
 %token <number> NUMBER
 %token <floats> FLOAT 
-%type <compare_op> compare_op;
+%type <compare_op> compare_op
+%type <value_type> value_type
 %%
 /* production list */
 command: /* starts here */
@@ -74,6 +85,8 @@ command: /* starts here */
   show_tables
   |
   desc_table
+  |
+  create_table
   ;
   
 exit:
@@ -85,6 +98,33 @@ show_tables:
 
 desc_table:
   DESC ID SEMICOLON { CONTEXT->query_ = std::make_unique<DescTable>(CONTEXT->pop_str()); }
+  ;
+
+create_table:
+  CREATE TABLE ID { CONTEXT->query_ = std::make_unique<CreateTable>(CONTEXT->pop_str()); } LBRACE create_schema RBRACE SEMICOLON {}
+  ;
+
+create_schema:
+  create_schema_item {}
+  |
+  create_schema COMMA create_schema_item {}
+  ;
+
+create_schema_item:
+  ID value_type { 
+    auto* query = CONTEXT->get_query<CreateTable>();
+    query->append_schema_item(SchemaItem{"", CONTEXT->pop_str(), $2});
+  }
+  ;
+
+value_type:
+  INT_T { $$ = ValueType::VT_INT; }
+  |
+  STRING_T { $$ = ValueType::VT_STRING; }
+  | 
+  DATE_T { $$ = ValueType::VT_DATE; }
+  |
+  FLOAT_T { $$ = ValueType::VT_FLOAT; }
   ;
 
 select:

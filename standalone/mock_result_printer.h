@@ -147,4 +147,7 @@ public:
     }
     std::cout<<");\n"<<std::endl;
   }
+  auto output_message(const std::string& msg) -> void override {
+    std::cout<<msg<<std::endl;
+  }
 };
