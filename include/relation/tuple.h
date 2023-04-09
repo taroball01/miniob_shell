@@ -17,7 +17,7 @@ class Tuple {
   auto append_back(const std::shared_ptr<Value> &ptr) -> void { tp_.emplace_back(ptr); }
 
   auto get_id() const -> TupleId * { return p_tp_id_.get(); }
-
+  auto set_id(std::shared_ptr<TupleId>& id) -> void { p_tp_id_ = id; }
   auto clear() -> void { tp_.clear(); }
 };
 

@@ -9,7 +9,10 @@ auto TableScanOperator::open() -> bool {
 auto TableScanOperator::get_next(Tuple &tp) -> bool {
   if (p_next_id_ == nullptr) return false;
   tp.clear();
+
   tp = ts_manager_.get_tuple(*p_next_id_);
+  tp.set_id(p_next_id_);
+
   p_next_id_ = ts_manager_.get_next_id(*p_next_id_);
   return true;
 }

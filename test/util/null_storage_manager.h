@@ -19,4 +19,5 @@ class NullStorageManager : public ITranscationalStorageManager {
   auto set_schema(Schema sch) -> void { schema_ = sch; }
   auto create_table(const std::vector<SchemaItem> &) -> bool override { return false; }
   auto insert_tuple(const std::string &rel, std::vector<std::unique_ptr<Value>> &arr) -> bool override { return false; }
+  auto delete_tuple(const TupleId&) -> bool override { return false; }
 };

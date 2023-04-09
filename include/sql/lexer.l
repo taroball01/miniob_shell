@@ -69,6 +69,8 @@ float                             return FLOAT_T;
 [Ii][Nn][Tt][Oo]                  return INTO;
 [Vv][Aa][Ll][Uu][Ee][Ss]          return VALUES;
 
+[Dd][Ee][Ll][Ee][Tt][Ee]          return DELETE;
+
 "("                               return LBRACE;
 ")"                               return RBRACE;
 not                               return NOT;

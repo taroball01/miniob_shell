@@ -12,7 +12,7 @@
 #include "sql/query/select.h"
 #include "sql/query/create_table.h"
 #include "sql/query/insert.h"
-
+#include "sql/query/delete.h"
 using namespace query_process_engine;
 #define CONTEXT query_process_engine::get_context(scanner)
 
@@ -49,6 +49,7 @@ using namespace query_process_engine;
         INSERT
         INTO
         VALUES
+        DELETE
 
         LBRACE
         RBRACE
@@ -93,6 +94,8 @@ command: /* starts here */
   create_table
   | 
   insert
+  |
+  delete
   ;
   
 exit:
@@ -148,6 +151,14 @@ value_list:
   } 
   ;
   
+delete:
+  DELETE FROM ID { CONTEXT->query_ = std::make_unique<DeleteQuery>(CONTEXT->pop_str()); } WHERE conditions SEMICOLON {
+    auto* del = CONTEXT->get_query<DeleteQuery>();
+    del->set_condition(CONTEXT->pop_predicate());
+  }
+  ;
+
+
 select:
   SELECT { CONTEXT->query_ = std::make_unique<SelectQuery>(); } sel_list FROM from_list where_clause SEMICOLON {}
   ;

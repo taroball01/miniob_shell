@@ -90,4 +90,21 @@ class InsertOperator : public PhysicalOperator {
   auto close() -> void override;
   auto get_plan() const -> const PlanNode & override { return plan_; }
 };
+
+class DeleteOperator : public PhysicalOperator {
+ private:
+  ITranscationalStorageManager &ts_manager_;
+  DeletePlanNode &plan_;
+  std::unique_ptr<PhysicalOperator> child_;
+  int cnt_{0};
+
+ public:
+  DeleteOperator(ITranscationalStorageManager &tsm, DeletePlanNode &pl, std::unique_ptr<PhysicalOperator> child) 
+  : ts_manager_(tsm), plan_(pl), child_(std::move(child)) {}
+  auto open() -> bool override;
+  auto get_next(Tuple &) -> bool override;
+  auto close() -> void override;
+  auto get_plan() const -> const PlanNode & override { return plan_; }
+};
+
 }  // namespace query_process_engine

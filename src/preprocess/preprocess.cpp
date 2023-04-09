@@ -27,6 +27,8 @@ auto Preprocessor::preprocess(std::unique_ptr<Query> query) -> std::unique_ptr<S
       return preprocess_select(dynamic_cast<SelectQuery &>(*query));
     case SqlType::Insert:
       return preprocess_insert(dynamic_cast<InsertQuery &>(*query));
+    case SqlType::Delete:
+      return preprocess_delete(dynamic_cast<DeleteQuery &>(*query));
     default:
       return nullptr;
   }
@@ -328,4 +330,23 @@ auto Preprocessor::preprocess_insert(InsertQuery &insert) -> std::unique_ptr<Ins
 
   return nullptr;
 };
+
+auto Preprocessor::preprocess_delete(DeleteQuery& del) -> std::unique_ptr<DeleteStmt> {
+  auto relation = del.get_relation();
+  auto sch_arr = ts_manager_.get_relation(relation);
+  if (sch_arr.empty()) {
+    throw UnknownRelation(relation);
+  }
+  Schema sch(sch_arr);
+
+  if (!resolve_predicate_leaves(del.get_conditions(), sch)) {
+    return nullptr;
+  }
+  static const std::vector<Attribute> delete_header {
+    Attribute{"succ"},
+    Attribute{"fail"}
+  };
+  printer_.set_attributes(delete_header);
+  return std::make_unique<DeleteStmt>(std::move(del), sch_arr);
+}
 }  // namespace query_process_engine

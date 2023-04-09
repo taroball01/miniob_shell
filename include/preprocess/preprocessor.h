@@ -3,12 +3,14 @@
 #include <memory>
 #include "common/result_printer.h"
 #include "common/storage_manager.h"
+#include "preprocess/stmt/delete_stmt.h"
 #include "preprocess/stmt/select_stmt.h"
 #include "preprocess/stmt/statement.h"
 #include "relation/attribute.h"
 #include "relation/schema.h"
 #include "relation/value/value.h"
 #include "sql/predicate/predicate.h"
+#include "sql/query/delete.h"
 #include "sql/query/select.h"
 namespace query_process_engine {
 
@@ -41,6 +43,7 @@ class Preprocessor {
 
   auto preprocess_insert(InsertQuery &) -> std::unique_ptr<InsertStmt>;
 
+  auto preprocess_delete(DeleteQuery &) -> std::unique_ptr<DeleteStmt>;
  public:
   Preprocessor(ITranscationalStorageManager &, ResultPrinter &);
 

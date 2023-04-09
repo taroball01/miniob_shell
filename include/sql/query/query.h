@@ -9,6 +9,7 @@ enum class SqlType {
   DescTable,
   CreateTable,
   Insert,
+  Delete,
 };
 
 class Query {

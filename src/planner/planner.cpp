@@ -2,6 +2,7 @@
 #include "planner/planner.h"
 #include <memory>
 #include "planner/plan_node.h"
+#include "preprocess/stmt/delete_stmt.h"
 #include "sql/query/query.h"
 namespace query_process_engine {
 auto Planner::plan_stmt(Statement &st) -> std::unique_ptr<PlanNode> {
@@ -11,6 +12,9 @@ auto Planner::plan_stmt(Statement &st) -> std::unique_ptr<PlanNode> {
     }
     case SqlType::Insert: {
       return plan_insert(dynamic_cast<InsertStmt &>(st));
+    }
+    case SqlType::Delete: {
+      return plan_delete(dynamic_cast<DeleteStmt &>(st));
     }
     default:
       return nullptr;
@@ -32,5 +36,12 @@ auto Planner::plan_select(SelectStmt &stmt) -> std::unique_ptr<PlanNode> {
 
 auto Planner::plan_insert(InsertStmt &stmt) -> std::unique_ptr<PlanNode> {
   return std::make_unique<InsertPlanNode>(stmt);
+}
+
+auto Planner::plan_delete(DeleteStmt& stmt) -> std::unique_ptr<PlanNode> {
+  auto& query = stmt.get_query();
+  auto ts = std::make_unique<TableScanPlanNode>(query.get_relation(), stmt.get_relation_schema());
+  auto filter = std::make_unique<FilterPlanNode>(std::move(ts), query.transfer_conditions());
+  return std::make_unique<DeletePlanNode>(std::move(filter));
 }
 }  // namespace query_process_engine

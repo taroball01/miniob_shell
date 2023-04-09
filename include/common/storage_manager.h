@@ -17,5 +17,6 @@ class ITranscationalStorageManager {
   virtual auto get_relations() -> std::vector<std::string> = 0;
   virtual auto create_table(const std::vector<SchemaItem> &sch) -> bool = 0;
   virtual auto insert_tuple(const std::string &, std::vector<std::unique_ptr<Value>> &) -> bool = 0;
+  virtual auto delete_tuple(const TupleId& id) -> bool = 0;
 };
 }  // namespace query_process_engine
