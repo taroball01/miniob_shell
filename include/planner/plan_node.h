@@ -1,9 +1,11 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include "preprocess/stmt/insert_stmt.h"
 #include "relation/attribute.h"
 #include "relation/schema.h"
 #include "sql/predicate/predicate.h"
+#include "sql/query/insert.h"
 namespace query_process_engine {
 enum class PlanNodeType {
   TableScan,
@@ -11,6 +13,8 @@ enum class PlanNodeType {
   BinaryJoin,
   Filter,
   Projection,
+
+  Insert,
 };
 
 class PlanNode {
@@ -142,4 +146,19 @@ class ProjectionPlanNode : public PlanNode {
   }
 };
 
+class InsertPlanNode : public PlanNode {
+ private:
+  std::vector<std::unique_ptr<Value>> value_arr_;
+  std::string relation_;
+
+ public:
+  explicit InsertPlanNode(InsertStmt &stmt)
+      : PlanNode(Schema(std::vector<SchemaItem>{SchemaItem{"", "affected_rows", ValueType::VT_INT}})),
+        value_arr_(std::move(stmt.get_query().get_value_arr())),
+        relation_(stmt.get_query().get_relation_name()) {}
+
+  auto get_plan_node_type() const -> PlanNodeType override { return PlanNodeType::Insert; }
+  auto get_relation_name() const -> const std::string & { return relation_; }
+  auto get_value_arr() -> std::vector<std::unique_ptr<Value>> & { return value_arr_; }
+};
 }  // namespace query_process_engine

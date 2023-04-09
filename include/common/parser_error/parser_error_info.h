@@ -10,6 +10,7 @@ enum class ParserErrorType {
   Unknown_Attribute,
   Unknown_Relation,
   Ambiguous_Attribute,
+  Mismatched_Size,
 };
 
 class ParserErrorInfo : public std::exception {

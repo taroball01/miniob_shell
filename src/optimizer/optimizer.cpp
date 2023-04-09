@@ -54,7 +54,8 @@ auto Optimizer::choose_join_sequence(std::unique_ptr<PlanNode> ptr) -> std::uniq
       return ptr;
     }
     default: {
-      throw std::logic_error("Optimizer::choose_join_sequence");
+      return ptr;
+      // throw std::logic_error("Optimizer::choose_join_sequence");
     }
   }
 }
@@ -101,7 +102,8 @@ auto Optimizer::build_join_trie(PlanNode &node, join_trie_t &join_trie) -> const
       return &bj;
     }
     default: {
-      throw std::logic_error("Optimizer::build_join_trie");
+      return nullptr;
+      // throw std::logic_error("Optimizer::build_join_trie");
     }
   }
 }
@@ -216,7 +218,8 @@ auto Optimizer::push_down_filter(std::unique_ptr<PlanNode> pnode, const join_tri
       return pnode;
     }
     default: {
-      throw std::logic_error("Optimizer::push_down_filter");
+      return pnode;
+      // throw std::logic_error("Optimizer::push_down_filter");
     }
   }
 }

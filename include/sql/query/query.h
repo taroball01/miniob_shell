@@ -7,7 +7,8 @@ enum class SqlType {
   Select,
   ShowTables,
   DescTable,
-  CreateTable
+  CreateTable,
+  Insert,
 };
 
 class Query {

@@ -20,7 +20,7 @@ class SelectStmt : public Statement {
  public:
   SelectStmt(const Schema &, const std::vector<Attribute> &, std::unique_ptr<Predicate>);
 
-  auto get_sql_type() -> SqlType override { return SqlType::Select; }
+  auto get_sql_type() const -> SqlType override { return SqlType::Select; }
   auto get_schema() -> const Schema &;
   auto get_attributes() -> const std::vector<Attribute> &;
   auto get_conditions() -> std::vector<std::unique_ptr<Predicate>> &;

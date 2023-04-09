@@ -5,11 +5,15 @@
 #include "common/storage_manager.h"
 #include "preprocess/stmt/select_stmt.h"
 #include "preprocess/stmt/statement.h"
+#include "relation/attribute.h"
 #include "relation/schema.h"
 #include "relation/value/value.h"
 #include "sql/predicate/predicate.h"
 #include "sql/query/select.h"
 namespace query_process_engine {
+
+class InsertQuery;
+class InsertStmt;
 
 class Preprocessor {
  private:
@@ -20,6 +24,7 @@ class Preprocessor {
   auto resolve_attribute_item(Attribute &, const Schema &) -> bool;
   auto resolve_operand_type(Operand &, const Schema &) -> ValueType;
   auto is_valid_compare(Operand &, Operand &, ValueType, ValueType) -> bool;
+  auto check_insert_value(std::vector<std::unique_ptr<Value>> &val_arr, const std::vector<SchemaItem> &sch) -> bool;
 
  public:
   // resolve relations, output schema into second parameter
@@ -31,7 +36,10 @@ class Preprocessor {
   // precompute simple leaves into value to simplify the tree
   auto pre_compute_simple_leaves(std::unique_ptr<Predicate>) -> std::unique_ptr<Predicate>;
   // auto erase_not(std::unique_ptr<Predicate>, bool) -> std::unique_ptr<Predicate>;
+
   auto preprocess_select(SelectQuery &) -> std::unique_ptr<SelectStmt>;
+
+  auto preprocess_insert(InsertQuery &) -> std::unique_ptr<InsertStmt>;
 
  public:
   Preprocessor(ITranscationalStorageManager &, ResultPrinter &);

@@ -9,6 +9,9 @@ auto Planner::plan_stmt(Statement &st) -> std::unique_ptr<PlanNode> {
     case SqlType::Select: {
       return plan_select(dynamic_cast<SelectStmt &>(st));
     }
+    case SqlType::Insert: {
+      return plan_insert(dynamic_cast<InsertStmt &>(st));
+    }
     default:
       return nullptr;
   }
@@ -27,4 +30,7 @@ auto Planner::plan_select(SelectStmt &stmt) -> std::unique_ptr<PlanNode> {
   return ptr;
 }
 
+auto Planner::plan_insert(InsertStmt &stmt) -> std::unique_ptr<PlanNode> {
+  return std::make_unique<InsertPlanNode>(stmt);
+}
 }  // namespace query_process_engine

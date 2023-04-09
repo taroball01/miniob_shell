@@ -77,4 +77,17 @@ class NestLoopJoinOperator : public PhysicalOperator {
   auto get_plan() const -> const PlanNode & override { return plan_; }
 };
 
+class InsertOperator : public PhysicalOperator {
+ private:
+  ITranscationalStorageManager &ts_manager_;
+  InsertPlanNode &plan_;
+  int cnt_{0};
+
+ public:
+  InsertOperator(ITranscationalStorageManager &tsm, InsertPlanNode &pl) : ts_manager_(tsm), plan_(pl) {}
+  auto open() -> bool override;
+  auto get_next(Tuple &) -> bool override;
+  auto close() -> void override;
+  auto get_plan() const -> const PlanNode & override { return plan_; }
+};
 }  // namespace query_process_engine

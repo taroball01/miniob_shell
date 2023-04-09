@@ -65,6 +65,10 @@ string                            return STRING_T;
 date                              return DATE_T;
 float                             return FLOAT_T;
 
+[Ii][Nn][Ss][Ee][Rr][Tt]          return INSERT;
+[Ii][Nn][Tt][Oo]                  return INTO;
+[Vv][Aa][Ll][Uu][Ee][Ss]          return VALUES;
+
 "("                               return LBRACE;
 ")"                               return RBRACE;
 not                               return NOT;

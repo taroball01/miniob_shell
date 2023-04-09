@@ -11,6 +11,7 @@
 
 #include "sql/query/select.h"
 #include "sql/query/create_table.h"
+#include "sql/query/insert.h"
 
 using namespace query_process_engine;
 #define CONTEXT query_process_engine::get_context(scanner)
@@ -45,6 +46,9 @@ using namespace query_process_engine;
         STRING_T
         DATE_T
         FLOAT_T
+        INSERT
+        INTO
+        VALUES
 
         LBRACE
         RBRACE
@@ -87,6 +91,8 @@ command: /* starts here */
   desc_table
   |
   create_table
+  | 
+  insert
   ;
   
 exit:
@@ -127,6 +133,21 @@ value_type:
   FLOAT_T { $$ = ValueType::VT_FLOAT; }
   ;
 
+insert:
+  INSERT INTO ID {  CONTEXT->query_ = std::make_unique<InsertQuery>(CONTEXT->pop_str()); } VALUES LBRACE value_list RBRACE SEMICOLON;
+
+value_list:
+  value { 
+    auto* insert = CONTEXT->get_query<InsertQuery>();
+    insert->append_value(CONTEXT->pop_value()); 
+  }
+  |
+  value_list COMMA value { 
+    auto* insert = CONTEXT->get_query<InsertQuery>();
+    insert->append_value(CONTEXT->pop_value()); 
+  } 
+  ;
+  
 select:
   SELECT { CONTEXT->query_ = std::make_unique<SelectQuery>(); } sel_list FROM from_list where_clause SEMICOLON {}
   ;
