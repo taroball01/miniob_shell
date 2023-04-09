@@ -4,14 +4,18 @@
 #include <stdexcept>
 #include <vector>
 #include "common/parser_error/ambiguous_attribute.h"
+#include "common/parser_error/mismatched_size.h"
 #include "common/parser_error/mismatched_type.h"
 #include "common/parser_error/unknown_attribute.h"
 #include "common/parser_error/unknown_relation.h"
 #include "preprocess/preprocessor.h"
+#include "preprocess/stmt/insert_stmt.h"
 #include "relation/value/date.h"
 #include "relation/value/value.h"
 #include "sql/predicate/operand.h"
 #include "sql/predicate/predicate.h"
+#include "sql/query/insert.h"
+#include "sql/query/query.h"
 
 namespace query_process_engine {
 Preprocessor::Preprocessor(ITranscationalStorageManager &tsm, ResultPrinter &printer)
@@ -21,6 +25,10 @@ auto Preprocessor::preprocess(std::unique_ptr<Query> query) -> std::unique_ptr<S
   switch (query->get_sql_type()) {
     case SqlType::Select:
       return preprocess_select(dynamic_cast<SelectQuery &>(*query));
+    case SqlType::Insert:
+      return preprocess_insert(dynamic_cast<InsertQuery &>(*query));
+    case SqlType::Delete:
+      return preprocess_delete(dynamic_cast<DeleteQuery &>(*query));
     default:
       return nullptr;
   }
@@ -275,4 +283,70 @@ auto Preprocessor::pre_compute_simple_leaves(std::unique_ptr<Predicate> conditio
   }
 }
 
+auto Preprocessor::check_insert_value(std::vector<std::unique_ptr<Value>> &val_arr, const std::vector<SchemaItem> &sch)
+    -> bool {
+  int size = sch.size();
+  if (sch.size() != val_arr.size()) {
+    throw MismatchedSize(val_arr.size(), sch.size());
+  }
+  std::string val_str = "(";
+
+  for (int i = 0; i < size; ++i) {
+    val_str += val_arr[i]->to_string();
+    val_str += ", ";
+
+    auto attr_vt = sch[i].type_;
+    auto val_vt = val_arr[i]->get_value_type();
+
+    if (attr_vt == ValueType::VT_DATE && val_vt == ValueType::VT_STRING) {
+      auto &str = val_arr[i]->get_as<String>();
+      if (Date::is_valid_date(str)) {
+        val_arr[i] = std::make_unique<Date>(str);
+        continue;
+      } else {
+        throw MismatchedType(val_str, attr_vt, val_vt);
+      }
+    }
+
+    if (attr_vt != val_vt) {
+      throw MismatchedType(val_str, attr_vt, val_vt);
+    }
+  }
+  return true;
+}
+
+auto Preprocessor::preprocess_insert(InsertQuery &insert) -> std::unique_ptr<InsertStmt> {
+  auto &relation = insert.get_relation_name();
+
+  auto sch = ts_manager_.get_relation(relation);
+  if (sch.empty()) {
+    throw UnknownRelation(relation);
+  }
+  auto &val_arr = insert.get_value_arr();
+  if (check_insert_value(val_arr, sch)) {
+    printer_.set_attributes({Attribute{"rows_affected"}});
+    return std::make_unique<InsertStmt>(std::move(insert));
+  }
+
+  return nullptr;
+};
+
+auto Preprocessor::preprocess_delete(DeleteQuery& del) -> std::unique_ptr<DeleteStmt> {
+  auto relation = del.get_relation();
+  auto sch_arr = ts_manager_.get_relation(relation);
+  if (sch_arr.empty()) {
+    throw UnknownRelation(relation);
+  }
+  Schema sch(sch_arr);
+
+  if (!resolve_predicate_leaves(del.get_conditions(), sch)) {
+    return nullptr;
+  }
+  static const std::vector<Attribute> delete_header {
+    Attribute{"succ"},
+    Attribute{"fail"}
+  };
+  printer_.set_attributes(delete_header);
+  return std::make_unique<DeleteStmt>(std::move(del), sch_arr);
+}
 }  // namespace query_process_engine

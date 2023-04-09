@@ -55,6 +55,24 @@ auto MockStorageManager::create_table(const std::vector<SchemaItem> &sch) -> boo
   return true;
 }
 
+auto MockStorageManager::insert_tuple(const std::string &rel, std::vector<std::unique_ptr<Value>> &arr) -> bool {
+  if (!db_schema_.is_relation_exist(rel)) {
+    return false;
+  }
+  Tuple tp;
+  for (auto &val : arr) {
+    tp.append_back(std::move(val));
+  }
+  data_[rel].emplace_back(tp);
+  return true;
+}
+
+auto MockStorageManager::delete_tuple(const TupleId& id) -> bool {
+  // Forward tuple id will ignore some slots.
+  // In standalone we uing backward tuple id;
+  return false;
+}
+
 static std::vector<Tuple> student_data = {
     make_tuple(String("'zeli'"), Date("2001-06-10"), Integer(3082)),
     make_tuple(String("'taroball'"), Date("2001-12-06"), Integer(3084)),

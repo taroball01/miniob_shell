@@ -11,7 +11,8 @@
 
 #include "sql/query/select.h"
 #include "sql/query/create_table.h"
-
+#include "sql/query/insert.h"
+#include "sql/query/delete.h"
 using namespace query_process_engine;
 #define CONTEXT query_process_engine::get_context(scanner)
 
@@ -45,6 +46,10 @@ using namespace query_process_engine;
         STRING_T
         DATE_T
         FLOAT_T
+        INSERT
+        INTO
+        VALUES
+        DELETE
 
         LBRACE
         RBRACE
@@ -87,6 +92,10 @@ command: /* starts here */
   desc_table
   |
   create_table
+  | 
+  insert
+  |
+  delete
   ;
   
 exit:
@@ -126,6 +135,29 @@ value_type:
   |
   FLOAT_T { $$ = ValueType::VT_FLOAT; }
   ;
+
+insert:
+  INSERT INTO ID {  CONTEXT->query_ = std::make_unique<InsertQuery>(CONTEXT->pop_str()); } VALUES LBRACE value_list RBRACE SEMICOLON;
+
+value_list:
+  value { 
+    auto* insert = CONTEXT->get_query<InsertQuery>();
+    insert->append_value(CONTEXT->pop_value()); 
+  }
+  |
+  value_list COMMA value { 
+    auto* insert = CONTEXT->get_query<InsertQuery>();
+    insert->append_value(CONTEXT->pop_value()); 
+  } 
+  ;
+  
+delete:
+  DELETE FROM ID { CONTEXT->query_ = std::make_unique<DeleteQuery>(CONTEXT->pop_str()); } WHERE conditions SEMICOLON {
+    auto* del = CONTEXT->get_query<DeleteQuery>();
+    del->set_condition(CONTEXT->pop_predicate());
+  }
+  ;
+
 
 select:
   SELECT { CONTEXT->query_ = std::make_unique<SelectQuery>(); } sel_list FROM from_list where_clause SEMICOLON {}

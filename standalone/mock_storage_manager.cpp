@@ -19,14 +19,14 @@ auto MockStorageManager::get_start_id(const std::string &rel) -> std::shared_ptr
   if (data_.find(rel) == data_.end() || data_.at(rel).empty()) {
     return nullptr;
   }
-  return std::make_shared<TupleId>(rel, 0);
+  int off = data_.at(rel).size() - 1;
+  return std::make_shared<TupleId>(rel, off);
 }
 
 auto MockStorageManager::get_next_id(const TupleId &id) -> std::shared_ptr<TupleId> {
   auto [rel, off] = id;
-  ++off;
-  int size = data_.at(rel).size();
-  if (data_.find(rel) == data_.end() || off >= size) {
+  --off;
+  if (data_.find(rel) == data_.end() || off < 0) {
     return nullptr;
   }
   return std::make_shared<TupleId>(rel, off);
@@ -34,8 +34,7 @@ auto MockStorageManager::get_next_id(const TupleId &id) -> std::shared_ptr<Tuple
 
 auto MockStorageManager::get_tuple(const TupleId &id) -> Tuple {
   auto &[rel, off] = id;
-  int size = data_.at(rel).size();
-  if (data_.find(rel) == data_.end() || off >= size) {
+  if (data_.find(rel) == data_.end() || off < 0) {
     return {};
   }
   return data_.at(rel).at(off);
@@ -59,6 +58,33 @@ auto MockStorageManager::create_table(const std::vector<SchemaItem>& sch) -> boo
     return false;
   }
   db_schema_.emplace(tb, sch);
+  return true;
+}
+
+auto MockStorageManager::insert_tuple(const std::string &rel, std::vector<std::unique_ptr<Value>> &arr) -> bool {
+  if (db_schema_.find(rel) == db_schema_.end()) {
+    return false;
+  }
+  Tuple tp;
+  for (auto& val : arr) {
+    tp.append_back(std::move(val));
+  }
+  data_[rel].emplace_back(tp);
+  return true;
+}
+
+auto MockStorageManager::delete_tuple(const TupleId& id) -> bool {
+  auto& rel = id.relation_;
+  int off = id.offset_;
+  if (data_.find(rel) == data_.end()) {
+    return false;
+  }
+  auto& arr = data_.at(rel);
+  int size = arr.size();
+  if (off >= size || off < 0) {
+    return false;
+  }
+  arr.erase(arr.begin() + off);
   return true;
 }
 

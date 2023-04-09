@@ -28,6 +28,15 @@ auto Executor::build_physical_operator(PlanNode &plan) -> std::unique_ptr<Physic
       auto &cur = dynamic_cast<TableScanPlanNode &>(plan);
       return std::make_unique<TableScanOperator>(ts_manager_, cur);
     }
+    case PlanNodeType::Insert: {
+      auto &cur = dynamic_cast<InsertPlanNode &>(plan);
+      return std::make_unique<InsertOperator>(ts_manager_, cur);
+    }
+    case PlanNodeType::Delete: {
+      auto &cur = dynamic_cast<DeletePlanNode &>(plan);
+      auto child = build_physical_operator(cur.get_child());
+      return std::make_unique<DeleteOperator>(ts_manager_, cur, std::move(child));
+    }
     default: {
       throw std::logic_error("Executor::build_physical_operator");
     }
